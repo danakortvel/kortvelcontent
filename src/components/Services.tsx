@@ -1,12 +1,13 @@
 import { Video, Camera, Users, Share2, BarChart3, Package, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const services = [
-  { icon: Video, title: "VIDEO", description: "Promo videá, reely, videoklipy, UGC a produktové videá pre tvoju značku." },
-  { icon: Camera, title: "FOTO", description: "Business, produktové a fashion fotografie na profesionálnej úrovni." },
-  { icon: Users, title: "MODELS", description: "Modely, herci, influenceri a speváci pre tvoje kampane." },
-  { icon: Share2, title: "SPRÁVA SOCIÁLNYCH SIETÍ", description: "Kompletná správa tvojich sociálnych sietí a online prítomnosti." },
-  { icon: BarChart3, title: "CONTENT STRATÉGIA", description: "Stratégie pre zlatníctva, butiky, kozmetiku, reštaurácie a viac." },
-  { icon: Package, title: "CONTENT BALÍKY", description: "Kombinované balíky prispôsobené tvojim potrebám a rozpočtu." },
+  { icon: Video, title: "VIDEO", category: "video", description: "Promo videá, reely, videoklipy, UGC a produktové videá pre tvoju značku." },
+  { icon: Camera, title: "FOTO", category: "foto", description: "Business, produktové a fashion fotografie na profesionálnej úrovni." },
+  { icon: Users, title: "MODELS", category: "models", description: "Modely, herci, influenceri a speváci pre tvoje kampane." },
+  { icon: Share2, title: "SPRÁVA SOCIÁLNYCH SIETÍ", category: "social", description: "Kompletná správa tvojich sociálnych sietí a online prítomnosti." },
+  { icon: BarChart3, title: "CONTENT STRATÉGIA", category: "strategy", description: "Stratégie pre zlatníctva, butiky, kozmetiku, reštaurácie a viac." },
+  { icon: Package, title: "CONTENT BALÍKY", category: "packages", description: "Kombinované balíky prispôsobené tvojim potrebám a rozpočtu." },
 ];
 
 const Services = () => {
@@ -18,7 +19,7 @@ const Services = () => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((s) => (
-            <div key={s.title} className="card-service group cursor-pointer">
+            <Link key={s.title} to={`/shop?category=${s.category}`} className="card-service group cursor-pointer block">
               <div className="icon-circle mb-6">
                 <s.icon size={22} />
               </div>
@@ -29,7 +30,7 @@ const Services = () => {
               <span className="inline-flex items-center gap-2 text-primary text-sm font-semibold group-hover:gap-3 transition-all">
                 Viac Info <ArrowRight size={16} />
               </span>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

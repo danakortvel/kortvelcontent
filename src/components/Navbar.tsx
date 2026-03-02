@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const navLinks = [
   { label: "Domov", href: "#hero" },
@@ -30,12 +31,12 @@ const Navbar = () => {
               {link.label}
             </a>
           ))}
-          <a
-            href="#services"
+          <Link
+            to="/shop"
             className="text-sm font-semibold border-2 border-primary text-primary px-5 py-2 rounded-full hover:bg-primary hover:text-primary-foreground transition-colors"
           >
             E-Shop
-          </a>
+          </Link>
         </div>
 
         {/* Mobile toggle */}
