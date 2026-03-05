@@ -1,11 +1,15 @@
+import { useState } from "react";
 import { Product } from "@/data/products";
-import { ShoppingCart, ArrowRight } from "lucide-react";
+import { Calculator } from "lucide-react";
+import PriceCalculator from "./PriceCalculator";
 
 interface ProductCardProps {
   product: Product;
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
+  const [open, setOpen] = useState(false);
+
   return (
     <div className="card-service group flex flex-col h-full">
       {/* Tag */}
@@ -31,14 +35,17 @@ const ProductCard = ({ product }: ProductCardProps) => {
       </p>
 
       <div className="flex items-center justify-between mt-auto pt-4 border-t border-border">
-        <span className="font-heading text-2xl font-black text-foreground">
-          {product.price}€
-        </span>
-        <button className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-primary text-primary text-sm font-semibold hover:bg-primary hover:text-primary-foreground transition-colors">
-          <ShoppingCart size={15} />
-          Do košíka
+        <span className="font-heading text-2xl font-black text-foreground">od {product.price}€</span>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-primary text-primary text-sm font-semibold bg-gradient-to-b from-background/60 to-background/95 shadow-[0_10px_25px_-12px_rgba(0,0,0,0.5)] hover:-translate-y-[1px] active:translate-y-[1px] active:shadow-[0_4px_10px_-6px_rgba(0,0,0,0.5)] transition-all"
+        >
+          <Calculator size={16} />
+          Vypočítať cenu
         </button>
       </div>
+      <PriceCalculator product={product} open={open} onOpenChange={setOpen} />
     </div>
   );
 };

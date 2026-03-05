@@ -31,16 +31,13 @@ const Navbar = () => {
               {link.label}
             </a>
           ))}
-          <Link
-            to="/shop"
-            className="text-sm font-semibold border-2 border-primary text-primary px-5 py-2 rounded-full hover:bg-primary hover:text-primary-foreground transition-colors"
-          >
-            E-Shop
-          </Link>
         </div>
 
         {/* Mobile toggle */}
-        <button className="md:hidden text-foreground" onClick={() => setOpen(!open)}>
+        <button
+          className="md:hidden text-foreground w-10 h-10 rounded-full border-2 border-border/70 bg-gradient-to-b from-background/70 to-background shadow-[0_8px_20px_-10px_rgba(0,0,0,0.5)] flex items-center justify-center active:translate-y-[1px] active:shadow-[0_4px_10px_-6px_rgba(0,0,0,0.5)] transition-all"
+          onClick={() => setOpen(!open)}
+        >
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>

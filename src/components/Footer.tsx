@@ -15,17 +15,42 @@ const Footer = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            {[Facebook, Instagram, Youtube, Linkedin].map((Icon, i) => (
-              <a
-                key={i}
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="social-icon"
-              >
-                <Icon size={18} />
-              </a>
-            ))}
+            <a
+              href="https://facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-icon"
+              aria-label="Facebook"
+            >
+              <Facebook size={18} />
+            </a>
+            <a
+              href="https://www.instagram.com/kortvel.content"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-icon"
+              aria-label="Instagram"
+            >
+              <Instagram size={18} />
+            </a>
+            <a
+              href="https://youtube.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-icon"
+              aria-label="YouTube"
+            >
+              <Youtube size={18} />
+            </a>
+            <a
+              href="https://linkedin.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-icon"
+              aria-label="LinkedIn"
+            >
+              <Linkedin size={18} />
+            </a>
           </div>
         </div>
       </div>

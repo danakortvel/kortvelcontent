@@ -2,13 +2,14 @@ import { ExternalLink } from "lucide-react";
 
 const projects = [
   {
-    name: "Zoznamu",
-    description: "Komplexný online portál s profesionálnym obsahom a stratégiou.",
-    url: "https://zoznamu.sk",
+    name: "zoznamuju.sk",
+    description:
+      "Platforma, kde sa ľudia stretávajú — či už hľadáš niekoho špeciálneho alebo len chceš zažiť niečo nové. Zoznamovanie, eventy a momenty, na ktoré sa nezabúda.",
+    url: "https://zoznamuju.sk",
   },
   {
     name: "Adikt.sk",
-    description: "Kreatívna značka s dynamickým vizuálnym obsahom.",
+    description: "Statement fashion project & concept store — móda ako postoj, nie len oblečenie.",
     url: "https://adikt.sk",
   },
 ];

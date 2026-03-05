@@ -1,25 +1,53 @@
-import { useState } from "react";
-import { products, categories } from "@/data/products";
+import { products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import { ArrowLeft } from "lucide-react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+
+const categoryRouteConfig: Record<
+  string,
+  {
+    id: string;
+    label: string;
+    description: string;
+  }
+> = {
+  video: {
+    id: "video",
+    label: "Video",
+    description: "Promo videá, reely, videoklipy, UGC a produktové videá na mieru tvojej značke.",
+  },
+  foto: {
+    id: "foto",
+    label: "Foto",
+    description: "Business, produktové a fashion fotografie na profesionálnej úrovni.",
+  },
+  models: {
+    id: "models",
+    label: "Models",
+    description: "Modely, herci, influenceri a speváci pre tvoje kampane, videá a fotenia.",
+  },
+  "sprava-socialnych-sieti": {
+    id: "social",
+    label: "Správa sociálnych sietí",
+    description: "Kompletná správa sociálnych sietí — obsah, komunikácia a rast komunity.",
+  },
+  "content-strategia": {
+    id: "strategy",
+    label: "Content stratégia",
+    description: "Stratégie obsahu pre rôzne typy biznisov — od butikov po realitné kancelárie.",
+  },
+  baliky: {
+    id: "packages",
+    label: "Content balíky",
+    description: "Kombinované balíky foto, video a sociálnych sietí podľa tvojich cieľov.",
+  },
+};
 
 const Shop = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const activeCategory = searchParams.get("category") || "all";
+  const { slug } = useParams<{ slug: string }>();
+  const config = slug ? categoryRouteConfig[slug] : undefined;
 
-  const filtered =
-    activeCategory === "all"
-      ? products
-      : products.filter((p) => p.category === activeCategory);
-
-  const setCategory = (id: string) => {
-    if (id === "all") {
-      setSearchParams({});
-    } else {
-      setSearchParams({ category: id });
-    }
-  };
+  const filtered = config ? products.filter((p) => p.category === config.id) : [];
 
   return (
     <div className="min-h-screen bg-background pt-24 pb-16">
@@ -34,43 +62,33 @@ const Shop = () => {
         </Link>
 
         {/* Header */}
-        <div className="mb-12">
-          <span className="section-label">E-SHOP</span>
-          <h1 className="section-heading mt-3">Vyber si službu</h1>
-          <p className="text-muted-foreground text-lg mt-4 max-w-2xl">
-            Profesionálny content pre tvoju značku. Vyber kategóriu a nájdi to,
-            čo potrebuješ.
-          </p>
-        </div>
-
-        {/* Category filters */}
-        <div className="flex flex-wrap gap-3 mb-12">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setCategory(cat.id)}
-              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-colors ${
-                activeCategory === cat.id
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-card text-muted-foreground hover:text-foreground border border-border"
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Count */}
-        <p className="text-sm text-muted-foreground mb-6">
-          {filtered.length} {filtered.length === 1 ? "produkt" : filtered.length < 5 ? "produkty" : "produktov"}
-        </p>
+        {config ? (
+          <div className="mb-10">
+            <span className="section-label">PONUKA</span>
+            <h1 className="section-heading mt-3">{config.label}</h1>
+            <p className="text-muted-foreground text-lg mt-4 max-w-2xl">{config.description}</p>
+            <p className="text-sm text-muted-foreground mt-4">
+              {filtered.length} {filtered.length === 1 ? "produkt" : filtered.length < 5 ? "produkty" : "produktov"}
+            </p>
+          </div>
+        ) : (
+          <div className="mb-10">
+            <span className="section-label">PONUKA</span>
+            <h1 className="section-heading mt-3">Kategória neexistuje</h1>
+            <p className="text-muted-foreground text-lg mt-4 max-w-2xl">
+              Vybraná kategória nebola nájdená. Vyber si prosím jednu z dostupných kategórií na hlavnej stránke.
+            </p>
+          </div>
+        )}
 
         {/* Products grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {config && (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
