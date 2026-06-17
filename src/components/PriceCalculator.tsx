@@ -44,7 +44,7 @@ const CONFIRMATION_SUBJECT = "Vaša cenová ponuka — Kortvel Content";
 const CONFIRMATION_MESSAGE =
   "Ďakujeme za váš záujem! Prijali sme vašu nezáväznú objednávku a ozveme sa vám do 24 hodín. Váš tím Kortvel Content.";
 
-const EMAILJS_SERVICE_ID = "service_9nygw9p";
+const EMAILJS_SERVICE_ID = "service_d5r8rwt";
 const EMAILJS_TEMPLATE_ID = "template_ezts0se";
 const EMAILJS_PUBLIC_KEY = "VX8VnCV2lXgISDWIw";
 
