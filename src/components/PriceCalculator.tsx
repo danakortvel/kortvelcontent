@@ -36,6 +36,25 @@ type InquiryPayload = {
 };
 
 const INQUIRIES_STORAGE_KEY = "kortvel_inquiries_v1";
+const ADMIN_EMAIL = "info@kortvelcontent.com";
+const SUCCESS_MESSAGE = "Ďakujeme! Vaša objednávka bola odoslaná. Ozveme sa vám čoskoro.";
+const ERROR_MESSAGE =
+  "Nepodarilo sa odoslať. Skúste neskôr alebo nás kontaktujte na info@kortvelcontent.com";
+const CONFIRMATION_SUBJECT = "Vaša cenová ponuka — Kortvel Content";
+const CONFIRMATION_MESSAGE =
+  "Ďakujeme za váš záujem! Prijali sme vašu nezáväznú objednávku a ozveme sa vám do 24 hodín. Váš tím Kortvel Content.";
+
+const sendEmail = async (templateParams: Record<string, string>) => {
+  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID as string | undefined;
+  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID as string | undefined;
+  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string | undefined;
+
+  if (!serviceId || !templateId || !publicKey) {
+    throw new Error("EmailJS env variables are missing.");
+  }
+
+  await emailjs.send(serviceId, templateId, templateParams, publicKey);
+};
 
 const loadConfigForProduct = (productId: string): ProductCalculatorConfig | undefined =>
   calculatorConfigs.find((c) => c.productId === productId);
@@ -120,6 +139,8 @@ const PriceCalculator = ({ product, open, onOpenChange }: PriceCalculatorProps) 
     setCustomerPhone("");
     setCustomerMessage("");
     setIsSubmitted(false);
+    setSendError(null);
+    setIsSending(false);
   };
 
   const handleClose = (nextOpen: boolean) => {
@@ -142,29 +163,100 @@ const PriceCalculator = ({ product, open, onOpenChange }: PriceCalculatorProps) 
     }
   };
 
+  const buildSelectionsArray = () =>
+    visibleSteps.map((step) => {
+      const selectedId = selections[step.id];
+      const option = step.options?.find((o) => o.id === selectedId);
+      let optionLabel = option?.label || selections[step.id] || "—";
+
+      if (step.id === "travel" && selectedId === "outside") {
+        const location = selections["travel-location"];
+        if (location) {
+          optionLabel = `${optionLabel} — miesto: ${location} (Cena za dopravu bude upresnená po konzultácii (+20€/hod + PHM))`;
+        } else {
+          optionLabel = `${optionLabel} (Cena za dopravu bude upresnená po konzultácii (+20€/hod + PHM))`;
+        }
+      }
+
+      return {
+        stepId: step.id,
+        title: step.title,
+        value: optionLabel,
+      };
+    });
+
+  const buildInquiryBody = (
+    selectionsArr: { stepId: string; title: string; value: string }[],
+    price: number,
+    priceDetails?: { originalPrice: number; discountPercent: number } | null,
+  ) => {
+    const originalLine =
+      priceDetails && priceDetails.discountPercent > 0
+        ? `Pôvodná orientačná cena: ${formatCurrency(priceDetails.originalPrice)} (pred zľavou balíka)`
+        : undefined;
+    const discountLine =
+      priceDetails && priceDetails.discountPercent > 0
+        ? `Zľava balíka: ${Math.round(priceDetails.discountPercent * 100)}%`
+        : undefined;
+
+    return [
+      `Produkt: ${product.name}`,
+      originalLine,
+      discountLine,
+      `Orientačná cena po zľave (ak je): približne ${formatCurrency(price)}`,
+      "",
+      "Vyplnené kroky:",
+      ...selectionsArr.map((s) => `- ${s.title}: ${s.value}`),
+      "",
+      "Zákazník:",
+      `Meno: ${customerName}`,
+      `Email: ${customerEmail}`,
+      customerPhone ? `Telefón: ${customerPhone}` : "",
+      customerMessage ? `Správa: ${customerMessage}` : "",
+      "",
+      "Poznámka: Mood board / prílohy sú priložené v kalkulátore (nie sú súčasťou e-mailu).",
+    ]
+      .filter(Boolean)
+      .join("\n");
+  };
+
+  const sendInquiryEmails = async (
+    subject: string,
+    body: string,
+    selectionsArr: { stepId: string; title: string; value: string }[],
+    price: number,
+  ) => {
+    const selectionsSummary = selectionsArr.map((s) => `${s.title}: ${s.value}`).join("\n");
+
+    await Promise.all([
+      sendEmail({
+        to_email: ADMIN_EMAIL,
+        subject,
+        message: body,
+        product_name: product.name,
+        customer_name: customerName,
+        customer_email: customerEmail,
+        customer_phone: customerPhone || "—",
+        approximate_price: formatCurrency(price),
+        selections_summary: selectionsSummary,
+      }),
+      sendEmail({
+        to_email: customerEmail,
+        subject: CONFIRMATION_SUBJECT,
+        message: CONFIRMATION_MESSAGE,
+        product_name: product.name,
+        customer_name: customerName,
+        customer_email: customerEmail,
+        customer_phone: customerPhone || "—",
+        approximate_price: formatCurrency(price),
+        selections_summary: selectionsSummary,
+      }),
+    ]);
+  };
+
   const handleSubmit = async () => {
     if (!config) return;
-    const selectionsArr =
-      visibleSteps.map((step) => {
-        const selectedId = selections[step.id];
-        const option = step.options?.find((o) => o.id === selectedId);
-        let optionLabel = option?.label || selections[step.id] || "—";
-
-        if (step.id === "travel" && selectedId === "outside") {
-          const location = selections["travel-location"];
-          if (location) {
-            optionLabel = `${optionLabel} — miesto: ${location} (Cena za dopravu bude upresnená po konzultácii (+20€/hod + PHM))`;
-          } else {
-            optionLabel = `${optionLabel} (Cena za dopravu bude upresnená po konzultácii (+20€/hod + PHM))`;
-          }
-        }
-
-        return {
-          stepId: step.id,
-          title: step.title,
-          value: optionLabel,
-        };
-      }) ?? [];
+    const selectionsArr = buildSelectionsArray();
 
     const payload: InquiryPayload = {
       id: `inq_${Date.now()}`,
@@ -191,68 +283,17 @@ const PriceCalculator = ({ product, open, onOpenChange }: PriceCalculatorProps) 
     }
 
     const subject = `Nezáväzná objednávka – ${product.name}`;
-    const originalLine =
-      priceInfo && priceInfo.discountPercent > 0
-        ? `Pôvodná orientačná cena: ${formatCurrency(priceInfo.originalPrice)} (pred zľavou balíka)`
-        : undefined;
-    const discountLine =
-      priceInfo && priceInfo.discountPercent > 0
-        ? `Zľava balíka: ${Math.round(priceInfo.discountPercent * 100)}%`
-        : undefined;
-    const bodyLines = [
-      `Produkt: ${product.name}`,
-      originalLine,
-      discountLine,
-      `Orientačná cena po zľave (ak je): približne ${formatCurrency(approximatePrice)}`,
-      "",
-      "Vyplnené kroky:",
-      ...selectionsArr.map((s) => `- ${s.title}: ${s.value}`),
-      "",
-      "Zákazník:",
-      `Meno: ${customerName}`,
-      `Email: ${customerEmail}`,
-      customerPhone ? `Telefón: ${customerPhone}` : "",
-      customerMessage ? `Správa: ${customerMessage}` : "",
-      "",
-      "Poznámka: Mood board / prílohy sú priložené v kalkulátore (nie sú súčasťou e-mailu).",
-    ].filter(Boolean);
-    const body = bodyLines.join("\n");
-
-    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID as string | undefined;
-    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID as string | undefined;
-    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string | undefined;
-
-    if (!serviceId || !templateId || !publicKey) {
-      console.error("EmailJS env variables are missing.");
-      setSendError(
-        "Nepodarilo sa odoslať e‑mail (chýba konfigurácia). Skús neskôr alebo ma kontaktuj priamo na info@kortvelcontent.com.",
-      );
-      return;
-    }
+    const body = buildInquiryBody(selectionsArr, approximatePrice, priceInfo);
 
     setIsSending(true);
     setSendError(null);
 
     try {
-      await emailjs.send(
-        serviceId,
-        templateId,
-        {
-          subject,
-          message: body,
-          product_name: product.name,
-          customer_name: customerName,
-          customer_email: customerEmail,
-          customer_phone: customerPhone,
-        },
-        publicKey,
-      );
+      await sendInquiryEmails(subject, body, selectionsArr, approximatePrice);
       setIsSubmitted(true);
     } catch (err) {
       console.error("EmailJS send error", err);
-      setSendError(
-        "Pri odosielaní objednávky nastala chyba. Skús to prosím znova alebo ma kontaktuj priamo na info@kortvelcontent.com.",
-      );
+      setSendError(ERROR_MESSAGE);
     } finally {
       setIsSending(false);
     }
@@ -301,6 +342,7 @@ const PriceCalculator = ({ product, open, onOpenChange }: PriceCalculatorProps) 
               className="w-full"
               onClick={async () => {
                 const approx = product.price;
+                const selectionsArr: { stepId: string; title: string; value: string }[] = [];
                 const bodyLines = [
                   `Produkt: ${product.name}`,
                   `Orientačná cena od: ${formatCurrency(approx)}`,
@@ -314,41 +356,16 @@ const PriceCalculator = ({ product, open, onOpenChange }: PriceCalculatorProps) 
                   customerPhone ? `Telefón: ${customerPhone}` : "",
                 ].filter(Boolean);
                 const body = bodyLines.join("\n");
-
-                const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID as string | undefined;
-                const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID as string | undefined;
-                const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string | undefined;
-
-                if (!serviceId || !templateId || !publicKey) {
-                  console.error("EmailJS env variables are missing.");
-                  setSendError(
-                    "Nepodarilo sa odoslať e‑mail (chýba konfigurácia). Skús neskôr alebo ma kontaktuj priamo na info@kortvelcontent.com.",
-                  );
-                  return;
-                }
+                const subject = `Nezáväzná objednávka – ${product.name}`;
 
                 setIsSending(true);
                 setSendError(null);
                 try {
-                  await emailjs.send(
-                    serviceId,
-                    templateId,
-                    {
-                      subject: `Nezáväzná objednávka – ${product.name}`,
-                      message: body,
-                      product_name: product.name,
-                      customer_name: customerName,
-                      customer_email: customerEmail,
-                      customer_phone: customerPhone,
-                    },
-                    publicKey,
-                  );
+                  await sendInquiryEmails(subject, body, selectionsArr, approx);
                   setIsSubmitted(true);
                 } catch (err) {
                   console.error("EmailJS send error", err);
-                  setSendError(
-                    "Pri odosielaní objednávky nastala chyba. Skús to prosím znova alebo ma kontaktuj priamo na info@kortvelcontent.com.",
-                  );
+                  setSendError(ERROR_MESSAGE);
                 } finally {
                   setIsSending(false);
                 }
@@ -357,6 +374,8 @@ const PriceCalculator = ({ product, open, onOpenChange }: PriceCalculatorProps) 
             >
               {isSending ? "Odosielam..." : "Odoslať nezáväznú objednávku"}
             </Button>
+            {isSubmitted && <p className="text-xs text-emerald-600">{SUCCESS_MESSAGE}</p>}
+            {sendError && <p className="text-xs text-destructive">{sendError}</p>}
           </div>
           ) : (
             <div className="space-y-6">
@@ -566,11 +585,7 @@ const PriceCalculator = ({ product, open, onOpenChange }: PriceCalculatorProps) 
                   </p>
                 </div>
 
-                {isSubmitted && (
-                  <p className="text-xs text-emerald-600">
-                    Ďakujeme! Vaša objednávka bola odoslaná. Ozveme sa vám čoskoro.
-                  </p>
-                )}
+                {isSubmitted && <p className="text-xs text-emerald-600">{SUCCESS_MESSAGE}</p>}
                 {sendError && <p className="text-xs text-destructive">{sendError}</p>}
               </div>
             )}
