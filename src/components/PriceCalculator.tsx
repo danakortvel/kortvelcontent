@@ -44,16 +44,46 @@ const CONFIRMATION_SUBJECT = "Vaša cenová ponuka — Kortvel Content";
 const CONFIRMATION_MESSAGE =
   "Ďakujeme za váš záujem! Prijali sme vašu nezáväznú objednávku a ozveme sa vám do 24 hodín. Váš tím Kortvel Content.";
 
-const sendEmail = async (templateParams: Record<string, string>) => {
-  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID as string | undefined;
-  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID as string | undefined;
-  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string | undefined;
+const EMAILJS_SERVICE_ID = "service_9nygw9p";
+const EMAILJS_TEMPLATE_ID = "template_ezts0se";
+const EMAILJS_PUBLIC_KEY = "VX8VnCV2lXgISDWIw";
 
-  if (!serviceId || !templateId || !publicKey) {
-    throw new Error("EmailJS env variables are missing.");
+let emailJsInitialized = false;
+
+const getEmailJsConfig = () => {
+  const config = {
+    serviceId: EMAILJS_SERVICE_ID,
+    templateId: EMAILJS_TEMPLATE_ID,
+    publicKey: EMAILJS_PUBLIC_KEY,
+  };
+
+  console.log("[EmailJS] Credentials:", config);
+
+  return config;
+};
+
+const ensureEmailJsInitialized = (publicKey: string) => {
+  if (!emailJsInitialized) {
+    emailjs.init(publicKey);
+    emailJsInitialized = true;
+    console.log("[EmailJS] Initialized with public key:", publicKey);
   }
+};
 
-  await emailjs.send(serviceId, templateId, templateParams, publicKey);
+const sendEmail = async (templateParams: Record<string, string>) => {
+  const { serviceId, templateId, publicKey } = getEmailJsConfig();
+
+  ensureEmailJsInitialized(publicKey);
+
+  console.log("[EmailJS] Sending email:", {
+    serviceId,
+    templateId,
+    templateParams,
+  });
+
+  const response = await emailjs.send(serviceId, templateId, templateParams);
+  console.log("[EmailJS] Send success:", response.status, response.text);
+  return response;
 };
 
 const loadConfigForProduct = (productId: string): ProductCalculatorConfig | undefined =>
@@ -292,7 +322,7 @@ const PriceCalculator = ({ product, open, onOpenChange }: PriceCalculatorProps) 
       await sendInquiryEmails(subject, body, selectionsArr, approximatePrice);
       setIsSubmitted(true);
     } catch (err) {
-      console.error("EmailJS send error", err);
+      console.error("[EmailJS] Send error:", err);
       setSendError(ERROR_MESSAGE);
     } finally {
       setIsSending(false);
@@ -364,7 +394,7 @@ const PriceCalculator = ({ product, open, onOpenChange }: PriceCalculatorProps) 
                   await sendInquiryEmails(subject, body, selectionsArr, approx);
                   setIsSubmitted(true);
                 } catch (err) {
-                  console.error("EmailJS send error", err);
+                  console.error("[EmailJS] Send error:", err);
                   setSendError(ERROR_MESSAGE);
                 } finally {
                   setIsSending(false);
