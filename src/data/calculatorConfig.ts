@@ -2,11 +2,8 @@ export type CalculatorOption = {
   id: string;
   label: string;
   description?: string;
-  /** Price delta in EUR; can be negative for discounts. Use 0 for "+X€" notes and describe in the label. */
   delta: number;
-  /** Optional flag to indicate this option only notes that price will be clarified later. */
   isInformational?: boolean;
-  /** Optional percentage discount (0.1 = 10%) applied to the total price when this option is selected. */
   discountPercent?: number;
 };
 
@@ -17,9 +14,7 @@ export type CalculatorStep = {
   title: string;
   subtitle?: string;
   type: CalculatorStepType;
-  /** For choice steps */
   options?: CalculatorOption[];
-  /** Show this step only when predicate over previous selections is true. Implemented manually in component. */
   dependsOn?: {
     stepId: string;
     optionIds: string[];
@@ -36,9 +31,9 @@ export type ProductCalculatorConfig = {
 
 export const calculatorConfigs: ProductCalculatorConfig[] = [
   {
-    productId: "v2", // Reel video
-    baseLabel: "Reel video — od 14€",
-    basePrice: 14,
+    productId: "v2",
+    baseLabel: "Reel video — od 39€",
+    basePrice: 39,
     currency: "EUR",
     steps: [
       {
@@ -57,27 +52,18 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         type: "single-choice",
         options: [
           { id: "exterior", label: "Exteriér / vaša prevádzka", delta: 0 },
-          {
-            id: "studio",
-            label: "Štúdio",
-            delta: 60,
-          },
-          {
-            id: "rented",
-            label: "Prenajatá lokácia (+X€ — upresníme po konzultácii)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "studio", label: "Štúdio", delta: 60 },
+          { id: "rented", label: "Prenajatá lokácia (+X€ — upresníme po konzultácii)", delta: 0, isInformational: true },
         ],
       },
       {
         id: "dubbing",
-        title: "Dabing",
+        title: "Dabing / voiceover",
         type: "single-choice",
         options: [
           { id: "none", label: "Nie", delta: 0 },
-          { id: "sk", label: "Áno — slovenčina", delta: 30 },
-          { id: "other", label: "Áno — iný jazyk", delta: 50 },
+          { id: "sk", label: "Áno — slovenčina", delta: 10 },
+          { id: "other", label: "Áno — iný jazyk", delta: 20 },
         ],
       },
       {
@@ -87,6 +73,15 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         options: [
           { id: "none", label: "Nie", delta: 0 },
           { id: "yes", label: "Áno", delta: 10 },
+        ],
+      },
+      {
+        id: "license",
+        title: "Licencia na použitie",
+        type: "single-choice",
+        options: [
+          { id: "personal", label: "Osobné použitie / sociálne siete", delta: 0 },
+          { id: "commercial", label: "Komerčné použitie — reklamy, web", delta: 30 },
         ],
       },
       {
@@ -113,16 +108,19 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
       {
         id: "model",
         title: "Model / tvár",
-        subtitle: "Vyplň len ak je pre video relevantný model alebo tvár.",
         type: "single-choice",
         options: [
           { id: "none", label: "Nie", delta: 0 },
-          {
-            id: "yes-models",
-            label: "Áno — vybrať z kategórie Models (cena modela bude prirátaná podľa výberu)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "yes-models", label: "Áno — vybrať z kategórie Models (cena modela bude prirátaná podľa výberu)", delta: 0, isInformational: true },
+        ],
+      },
+      {
+        id: "travel",
+        title: "Doprava",
+        type: "single-choice",
+        options: [
+          { id: "kosice", label: "Košice a okolie", delta: 0 },
+          { id: "outside", label: "Mimo Košíc (+20€/hod + náklady na pohonné hmoty — upresníme po konzultácii)", delta: 0, isInformational: true },
         ],
       },
       {
@@ -145,9 +143,9 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
     ],
   },
   {
-    productId: "v1", // Promo video
-    baseLabel: "Promo video — od 80€",
-    basePrice: 80,
+    productId: "v1",
+    baseLabel: "Promo video — od 100€",
+    basePrice: 100,
     currency: "EUR",
     steps: [
       {
@@ -165,21 +163,9 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         title: "Rozsah príbehu",
         type: "single-choice",
         options: [
-          {
-            id: "simple",
-            label: "Jednoduchý — ilustračné zábery",
-            delta: 0,
-          },
-          {
-            id: "standard",
-            label: "Štandardný — príbeh, komplexnejšia réžia",
-            delta: 50,
-          },
-          {
-            id: "premium",
-            label: "Prémiový — komplexný príbeh, viac lokácií, emócie",
-            delta: 180,
-          },
+          { id: "simple", label: "Jednoduchý — ilustračné zábery", delta: 0 },
+          { id: "standard", label: "Štandardný — príbeh, komplexnejšia réžia", delta: 50 },
+          { id: "premium", label: "Prémiový — komplexný príbeh, viac lokácií, emócie", delta: 180 },
         ],
       },
       {
@@ -189,22 +175,17 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         options: [
           { id: "exterior", label: "Exteriér / vaša prevádzka", delta: 0 },
           { id: "studio", label: "Štúdio", delta: 50 },
-          {
-            id: "rented",
-            label: "Prenajatá lokácia (+X€ — upresníme po konzultácii)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "rented", label: "Prenajatá lokácia (+X€ — upresníme po konzultácii)", delta: 0, isInformational: true },
         ],
       },
       {
         id: "dubbing",
-        title: "Dabing",
+        title: "Dabing / voiceover",
         type: "single-choice",
         options: [
           { id: "none", label: "Nie", delta: 0 },
-          { id: "sk", label: "Áno — slovenčina", delta: 40 },
-          { id: "other", label: "Áno — iný jazyk", delta: 60 },
+          { id: "sk", label: "Áno — slovenčina", delta: 10 },
+          { id: "other", label: "Áno — iný jazyk", delta: 20 },
         ],
       },
       {
@@ -214,6 +195,15 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         options: [
           { id: "royalty-free", label: "Royalty free", delta: 0 },
           { id: "licensed", label: "Licencovaná", delta: 30 },
+        ],
+      },
+      {
+        id: "license",
+        title: "Licencia na použitie",
+        type: "single-choice",
+        options: [
+          { id: "personal", label: "Osobné použitie / sociálne siete", delta: 0 },
+          { id: "commercial", label: "Komerčné použitie — reklamy, web", delta: 30 },
         ],
       },
       {
@@ -243,12 +233,16 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         type: "single-choice",
         options: [
           { id: "none", label: "Nie", delta: 0 },
-          {
-            id: "yes-models",
-            label: "Áno — vybrať z kategórie Models (cena modela bude prirátaná podľa výberu)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "yes-models", label: "Áno — vybrať z kategórie Models (cena modela bude prirátaná podľa výberu)", delta: 0, isInformational: true },
+        ],
+      },
+      {
+        id: "travel",
+        title: "Doprava",
+        type: "single-choice",
+        options: [
+          { id: "kosice", label: "Košice a okolie", delta: 0 },
+          { id: "outside", label: "Mimo Košíc (+20€/hod + náklady na pohonné hmoty — upresníme po konzultácii)", delta: 0, isInformational: true },
         ],
       },
       {
@@ -271,9 +265,9 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
     ],
   },
   {
-    productId: "v4", // UGC video
-    baseLabel: "UGC video — od 29€",
-    basePrice: 29,
+    productId: "v4",
+    baseLabel: "UGC video — od 39€",
+    basePrice: 39,
     currency: "EUR",
     steps: [
       {
@@ -296,11 +290,11 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
       },
       {
         id: "dubbing",
-        title: "Dabing",
+        title: "Dabing / voiceover",
         type: "single-choice",
         options: [
           { id: "none", label: "Nie", delta: 0 },
-          { id: "yes", label: "Áno", delta: 25 },
+          { id: "yes", label: "Áno", delta: 10 },
         ],
       },
       {
@@ -310,6 +304,15 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         options: [
           { id: "none", label: "Nie", delta: 0 },
           { id: "yes", label: "Áno", delta: 10 },
+        ],
+      },
+      {
+        id: "license",
+        title: "Licencia na použitie",
+        type: "single-choice",
+        options: [
+          { id: "personal", label: "Osobné použitie / sociálne siete", delta: 0 },
+          { id: "commercial", label: "Komerčné použitie — reklamy, web", delta: 30 },
         ],
       },
       {
@@ -332,6 +335,21 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         ],
       },
       {
+        id: "travel",
+        title: "Doprava",
+        type: "single-choice",
+        options: [
+          { id: "kosice", label: "Košice a okolie", delta: 0 },
+          { id: "outside", label: "Mimo Košíc (+20€/hod + náklady na pohonné hmoty — upresníme po konzultácii)", delta: 0, isInformational: true },
+        ],
+      },
+      {
+        id: "moodboard",
+        title: "Mood board & inšpirácia",
+        subtitle: "Nápad, idea, réžia — zadarmo ✨",
+        type: "upload",
+      },
+      {
         id: "bundle",
         title: "Balík UGC videí",
         type: "single-choice",
@@ -345,9 +363,9 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
     ],
   },
   {
-    productId: "v6", // Recenzia video
-    baseLabel: "Recenzia video — od 29€",
-    basePrice: 29,
+    productId: "v6",
+    baseLabel: "Recenzia video — od 39€",
+    basePrice: 39,
     currency: "EUR",
     steps: [
       {
@@ -375,18 +393,10 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         id: "model",
         title: "Model / tvár",
         type: "single-choice",
-        dependsOn: {
-          stepId: "style",
-          optionIds: ["talking-head", "combo"],
-        },
+        dependsOn: { stepId: "style", optionIds: ["talking-head", "combo"] },
         options: [
           { id: "own", label: "Vlastná osoba", delta: 0 },
-          {
-            id: "models",
-            label: "Vybrať z kategórie Models (+cena modela podľa výberu)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "models", label: "Vybrať z kategórie Models (+cena modela podľa výberu)", delta: 0, isInformational: true },
         ],
       },
       {
@@ -397,32 +407,17 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
           { id: "exterior", label: "Exteriér", delta: 0 },
           { id: "studio", label: "Štúdio", delta: 60 },
           { id: "your-place", label: "Vaša prevádzka", delta: 0 },
-          {
-            id: "rented",
-            label: "Prenajatá lokácia (+X€ — upresníme po konzultácii)",
-            delta: 0,
-            isInformational: true,
-          },
-        ],
-      },
-      {
-        id: "light",
-        title: "Technika & svetlo",
-        type: "single-choice",
-        options: [
-          { id: "natural", label: "Prirodzené svetlo", delta: 0 },
-          { id: "basic", label: "Základné štúdiové svetlo", delta: 30 },
-          { id: "advanced", label: "Pokročilé svetlo", delta: 60 },
+          { id: "rented", label: "Prenajatá lokácia (+X€ — upresníme po konzultácii)", delta: 0, isInformational: true },
         ],
       },
       {
         id: "dubbing",
-        title: "Dabing",
+        title: "Dabing / voiceover",
         type: "single-choice",
         options: [
           { id: "none", label: "Nie", delta: 0 },
-          { id: "sk", label: "Slovenčina", delta: 30 },
-          { id: "other", label: "Iný jazyk", delta: 50 },
+          { id: "sk", label: "Slovenčina", delta: 10 },
+          { id: "other", label: "Iný jazyk", delta: 20 },
         ],
       },
       {
@@ -432,6 +427,15 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         options: [
           { id: "none", label: "Nie", delta: 0 },
           { id: "yes", label: "Áno", delta: 10 },
+        ],
+      },
+      {
+        id: "license",
+        title: "Licencia na použitie",
+        type: "single-choice",
+        options: [
+          { id: "personal", label: "Osobné použitie / sociálne siete", delta: 0 },
+          { id: "commercial", label: "Komerčné použitie — reklamy, web", delta: 30 },
         ],
       },
       {
@@ -459,12 +463,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         type: "single-choice",
         options: [
           { id: "kosice", label: "Košice a okolie", delta: 0 },
-          {
-            id: "outside",
-            label: "Mimo Košíc (+20€/hod + náklady na pohonné hmoty — upresníme po konzultácii)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "outside", label: "Mimo Košíc (+20€/hod + náklady na pohonné hmoty — upresníme po konzultácii)", delta: 0, isInformational: true },
         ],
       },
       {
@@ -487,7 +486,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
     ],
   },
   {
-    productId: "f3", // Fashion foto
+    productId: "f3",
     baseLabel: "Fashion foto — od 149€",
     basePrice: 149,
     currency: "EUR",
@@ -508,12 +507,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         type: "single-choice",
         options: [
           { id: "own", label: "Vlastné outfity", delta: 0 },
-          {
-            id: "provided",
-            label: "Zabezpečíme outfity (+X€ — upresníme po konzultácii)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "provided", label: "Zabezpečíme outfity (+X€ — upresníme po konzultácii)", delta: 0, isInformational: true },
         ],
       },
       {
@@ -523,12 +517,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         options: [
           { id: "exterior", label: "Exteriér", delta: 0 },
           { id: "studio", label: "Štúdio", delta: 60 },
-          {
-            id: "rented",
-            label: "Prenajatá lokácia (+X€ — upresníme po konzultácii)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "rented", label: "Prenajatá lokácia (+X€ — upresníme po konzultácii)", delta: 0, isInformational: true },
         ],
       },
       {
@@ -587,11 +576,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         type: "single-choice",
         options: [
           { id: "standard", label: "Štandardné 7–14 dní", delta: 0 },
-          {
-            id: "48h",
-            label: "Expresné 48 hodín",
-            delta: 50,
-          },
+          { id: "48h", label: "Expresné 48 hodín", delta: 50 },
         ],
       },
       {
@@ -600,12 +585,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         type: "single-choice",
         options: [
           { id: "own", label: "Vlastný model", delta: 0 },
-          {
-            id: "models",
-            label: "Vybrať z kategórie Models (+cena modela podľa výberu)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "models", label: "Vybrať z kategórie Models (+cena modela podľa výberu)", delta: 0, isInformational: true },
         ],
       },
       {
@@ -614,12 +594,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         type: "single-choice",
         options: [
           { id: "kosice", label: "Košice a okolie", delta: 0 },
-          {
-            id: "outside",
-            label: "Mimo Košíc (+20€/hod + náklady na pohonné hmoty — upresníme po konzultácii)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "outside", label: "Mimo Košíc (+20€/hod + náklady na pohonné hmoty — upresníme po konzultácii)", delta: 0, isInformational: true },
         ],
       },
       {
@@ -641,7 +616,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
     ],
   },
   {
-    productId: "f1", // Business fotka
+    productId: "f1",
     baseLabel: "Business fotka — od 79€",
     basePrice: 79,
     currency: "EUR",
@@ -662,26 +637,10 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         type: "single-choice",
         options: [
           { id: "1", label: "1 osoba", delta: 0 },
-          {
-            id: "2",
-            label: "2 osoby (zvýhodnená cena — približne +133€)",
-            delta: 133,
-          },
-          {
-            id: "3",
-            label: "3 osoby (zvýhodnená cena — približne +189€)",
-            delta: 189,
-          },
-          {
-            id: "5plus",
-            label: "5+ osôb → približne -20% z ceny",
-            delta: 0,
-          },
-          {
-            id: "10plus",
-            label: "10+ osôb → približne -25% z ceny",
-            delta: 0,
-          },
+          { id: "2", label: "2 osoby (zvýhodnená cena — približne +133€)", delta: 133 },
+          { id: "3", label: "3 osoby (zvýhodnená cena — približne +189€)", delta: 189 },
+          { id: "5plus", label: "5+ osôb → približne -20% z ceny", delta: 0 },
+          { id: "10plus", label: "10+ osôb → približne -25% z ceny", delta: 0 },
           { id: "group-5", label: "Skupinová fotka do 5 osôb", delta: 50 },
           { id: "group-6-10", label: "Skupinová fotka 6–10 osôb", delta: 80 },
           { id: "group-10plus", label: "Skupinová fotka 10+ osôb", delta: 120 },
@@ -695,12 +654,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
           { id: "exterior", label: "Exteriér", delta: 0 },
           { id: "studio", label: "Štúdio", delta: 60 },
           { id: "your-place", label: "Vaša prevádzka", delta: 0 },
-          {
-            id: "rented",
-            label: "Prenajatá lokácia (+X€ — upresníme po konzultácii)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "rented", label: "Prenajatá lokácia (+X€ — upresníme po konzultácii)", delta: 0, isInformational: true },
         ],
       },
       {
@@ -767,12 +721,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         type: "single-choice",
         options: [
           { id: "kosice", label: "Košice a okolie", delta: 0 },
-          {
-            id: "outside",
-            label: "Mimo Košíc (+20€/hod + náklady na pohonné hmoty — upresníme po konzultácii)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "outside", label: "Mimo Košíc (+20€/hod + náklady na pohonné hmoty — upresníme po konzultácii)", delta: 0, isInformational: true },
         ],
       },
       {
@@ -784,7 +733,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
     ],
   },
   {
-    productId: "f2", // Produktové foto
+    productId: "f2",
     baseLabel: "Produktové foto — od 49€",
     basePrice: 49,
     currency: "EUR",
@@ -837,12 +786,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         type: "single-choice",
         options: [
           { id: "basic", label: "Základné (v cene)", delta: 0 },
-          {
-            id: "special",
-            label: "Špeciálne rekvizity (+X€ — upresníme po konzultácii)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "special", label: "Špeciálne rekvizity (+X€ — upresníme po konzultácii)", delta: 0, isInformational: true },
         ],
       },
       {
@@ -852,12 +796,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         options: [
           { id: "studio", label: "Štúdio", delta: 60 },
           { id: "your-place", label: "Vaša prevádzka", delta: 0 },
-          {
-            id: "rented",
-            label: "Prenajatá lokácia (+X€ — upresníme po konzultácii)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "rented", label: "Prenajatá lokácia (+X€ — upresníme po konzultácii)", delta: 0, isInformational: true },
         ],
       },
       {
@@ -895,11 +834,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         type: "single-choice",
         options: [
           { id: "standard", label: "Štandardné 7–14 dní", delta: 0 },
-          {
-            id: "48h",
-            label: "Expresné 48 hodín",
-            delta: 50,
-          },
+          { id: "48h", label: "Expresné 48 hodín", delta: 50 },
         ],
       },
       {
@@ -908,12 +843,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         type: "single-choice",
         options: [
           { id: "none", label: "Nie", delta: 0 },
-          {
-            id: "models",
-            label: "Áno — vybrať z kategórie Models (+cena podľa výberu)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "models", label: "Áno — vybrať z kategórie Models (+cena podľa výberu)", delta: 0, isInformational: true },
         ],
       },
       {
@@ -922,12 +852,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         type: "single-choice",
         options: [
           { id: "kosice", label: "Košice a okolie", delta: 0 },
-          {
-            id: "outside",
-            label: "Mimo Košíc (+20€/hod + náklady na pohonné hmoty — upresníme po konzultácii)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "outside", label: "Mimo Košíc (+20€/hod + náklady na pohonné hmoty — upresníme po konzultácii)", delta: 0, isInformational: true },
         ],
       },
       {
@@ -950,9 +875,9 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
     ],
   },
   {
-    productId: "v3", // Videoklip
-    baseLabel: "Videoklip — od 299€",
-    basePrice: 299,
+    productId: "v3",
+    baseLabel: "Videoklip — od 699€",
+    basePrice: 699,
     currency: "EUR",
     steps: [
       {
@@ -992,12 +917,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         options: [
           { id: "exterior", label: "Exteriér", delta: 0 },
           { id: "studio", label: "Štúdio", delta: 60 },
-          {
-            id: "rented",
-            label: "Prenajatá lokácia (+X€ — upresníme po konzultácii)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "rented", label: "Prenajatá lokácia (+X€ — upresníme po konzultácii)", delta: 0, isInformational: true },
         ],
       },
       {
@@ -1006,18 +926,8 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         type: "single-choice",
         options: [
           { id: "artist-only", label: "Len umelec", delta: 0 },
-          {
-            id: "1-2",
-            label: "+1–2 herci / modely (cena podľa výberu z Models)",
-            delta: 0,
-            isInformational: true,
-          },
-          {
-            id: "3-5",
-            label: "+3–5 hercov / modelov (cena podľa výberu z Models)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "1-2", label: "+1–2 herci / modely (cena podľa výberu z Models)", delta: 0, isInformational: true },
+          { id: "3-5", label: "+3–5 hercov / modelov (cena podľa výberu z Models)", delta: 0, isInformational: true },
         ],
       },
       {
@@ -1028,11 +938,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
           { id: "own", label: "Vlastný", delta: 0 },
           { id: "mua", label: "Makeup artist", delta: 60 },
           { id: "mua-hair", label: "Makeup + vlasy", delta: 90 },
-          {
-            id: "extra",
-            label: "Každá ďalšia osoba (+60€ — približne)",
-            delta: 60,
-          },
+          { id: "extra", label: "Každá ďalšia osoba (+60€ — približne)", delta: 60 },
         ],
       },
       {
@@ -1041,12 +947,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         type: "single-choice",
         options: [
           { id: "own", label: "Vlastné", delta: 0 },
-          {
-            id: "provided",
-            label: "Zabezpečíme (+X€ — upresníme po konzultácii)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "provided", label: "Zabezpečíme (+X€ — upresníme po konzultácii)", delta: 0, isInformational: true },
         ],
       },
       {
@@ -1081,6 +982,15 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         ],
       },
       {
+        id: "license",
+        title: "Licencia na použitie",
+        type: "single-choice",
+        options: [
+          { id: "personal", label: "Osobné použitie / sociálne siete", delta: 0 },
+          { id: "commercial", label: "Komerčné použitie — reklamy, web", delta: 30 },
+        ],
+      },
+      {
         id: "revisions",
         title: "Počet kôl revízií",
         type: "single-choice",
@@ -1106,12 +1016,7 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
         type: "single-choice",
         options: [
           { id: "kosice", label: "Košice a okolie", delta: 0 },
-          {
-            id: "outside",
-            label: "Mimo Košíc (+20€/hod + náklady na pohonné hmoty — upresníme po konzultácii)",
-            delta: 0,
-            isInformational: true,
-          },
+          { id: "outside", label: "Mimo Košíc (+20€/hod + náklady na pohonné hmoty — upresníme po konzultácii)", delta: 0, isInformational: true },
         ],
       },
       {
@@ -1133,4 +1038,3 @@ export const calculatorConfigs: ProductCalculatorConfig[] = [
     ],
   },
 ];
-
