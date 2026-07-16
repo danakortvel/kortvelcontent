@@ -64,11 +64,11 @@ const Hero = () => {
           {/* Right */}
           <div className="flex justify-center lg:justify-end lg:items-start">
             <div className="relative lg:pt-6">
-              <div className="w-72 sm:w-80 md:w-96 lg:w-[440px] aspect-[3/4] rounded-3xl overflow-hidden shadow-[0_24px_60px_-28px_rgba(0,0,0,0.45)]">
+              <div className="w-72 sm:w-80 md:w-96 lg:w-[440px] rounded-3xl shadow-[0_24px_60px_-28px_rgba(0,0,0,0.45)]">
                 <img
                   src="/dana-hero.png"
                   alt="Dana Kortvel — Content Creator"
-                  className="h-full w-full object-cover object-[50%_36%] scale-[1.08]"
+                  className="h-auto w-full max-h-none object-contain"
                 />
               </div>
               {/* Decorative element */}
