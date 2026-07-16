@@ -62,13 +62,13 @@ const Hero = () => {
           </div>
 
           {/* Right */}
-          <div className="flex justify-center lg:justify-end lg:items-start">
-            <div className="relative lg:pt-6">
-              <div className="w-72 sm:w-80 md:w-96 lg:w-[440px] rounded-3xl shadow-[0_24px_60px_-28px_rgba(0,0,0,0.45)]">
+          <div className="flex justify-center lg:justify-end">
+            <div className="relative">
+              <div className="w-80 md:w-96 lg:w-[420px] rounded-3xl overflow-hidden">
                 <img
                   src="/dana-hero.png"
                   alt="Dana Kortvel — Content Creator"
-                  className="h-auto w-full max-h-none object-contain"
+                  className="w-full h-auto object-cover"
                 />
               </div>
               {/* Decorative element */}
